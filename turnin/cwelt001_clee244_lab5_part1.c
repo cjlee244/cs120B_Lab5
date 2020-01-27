@@ -1,6 +1,6 @@
-/*	Author: clee244
- *  Partner(s) Name: Carson Welty
- *	Lab Section: 24
+/*	Author: cwelt001
+ *  Partner(s) Name: Christian Lee
+ *	Lab Section:
  *	Assignment: Lab #5  Exercise #1
  *	Exercise Description: [optional - include for your own benefit]
  *
@@ -12,72 +12,43 @@
 #include "simAVRHeader.h"
 #endif
 
-enum States {Start, Init, Wait, Inc, Dec, Reset} state;
-
-void TickSM() {
-	switch(state) {
-		case Start:
-			state = Init;
-			break;
-		case Init:
-			state = Wait;
-			break;
-		case Wait:
-			if((PINA == 0x01) && (PORTC < 0x09)) {
-				state = Inc;
-			}
-			else if((PINA == 0x02) && (PORTC > 0x00)) {
-				state = Dec;
-			}
-			else if(PINA == 0x03) {
-				state = Reset;
-			}
-			else {
-				state = Wait;
-			} 
-			break;
-		case Inc:
-			state = Wait;
-			break;
-		case Dec:
-			state = Wait;
-			break;
-		case Reset:
-			state = Wait;
-			break;
-		default:
-			state = Start;
-			break;
-	}
-	switch(state) {
-		case Start:
-			break;
-		case Init: 
-			PORTC = 0x07;
-			break;
-		case Wait:
-			break;
-		case Inc:
-			PORTC = PORTC + 1;
-			break;
-		case Dec:
-			PORTC = PORTC - 1;
-			break;
-		case Reset:
-			PORTC = 0x00;
-			break;
-		default:
-			break;
-	}
+unsigned char GetBit(unsigned char x, unsigned char k) {
+	return ((x & (0x01 << k)) != 0);
+}
+unsigned char SetBit(unsigned char x, unsigned char k, unsigned char b) {
+	return (b ? x | (0x01 << k) : x & ~(0x01 << k));
 }
 
 int main(void) {
     /* Insert DDR and PORT initializations */
-	DDRA = 0x00; PORTA = 0xFF;
-	DDRC = 0xFF; PORTC = 0x00;
-    /* Insert your solution below */    
-	state = Start;
-	while (1) {
-		TickSM();
+	DDRA = 0x00; PORTA = 0xFF; // DDR: (1 for output, 0 for input) 
+	DDRC = 0xFF; PORTC = 0x00; // PORT used for writing, PIN used for reading
+	
+	unsigned char tank;
+	unsigned char tmp = 0x00;
+    /* Insert your solution below */
+    while (1) {
+		tank = PINA & 0x0F;
+			
+			if((tank == 0x01) || (tank == 0x02)){
+				tmp = 0x60;
+			}
+			else if ((tank == 0x03) || (tank == 0x04)){
+				tmp = 0x70;
+			}
+			else if ((tank == 0x05) || (tank == 0x06)){
+				tmp = 0x38;
+			}
+			else if ((tank == 0x07) || (tank == 0x08) || (tank == 0x09)){
+				tmp = 0x3C;
+			}
+			else if ((tank == 0x0A) || (tank == 0x0B) || (tank == 0x0C)){
+				tmp = 0x3E;
+			}
+			else if ((tank == 0x0D) || (tank == 0x0E) || (tank == 0x0F)){
+				tmp = 0x3F;
+			}
+			PORTC = tmp;
     }
+    return 1;
 }
