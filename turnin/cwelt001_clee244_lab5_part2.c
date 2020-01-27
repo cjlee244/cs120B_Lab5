@@ -53,7 +53,7 @@ void TickSM() {
 		case Start:
 			break;
 		case Init: 
-			PORTC = 0x07;
+			PORTC = 0x00;
 			break;
 		case Wait:
 			break;
